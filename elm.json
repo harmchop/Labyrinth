@@ -14,7 +14,8 @@
             "elm/html": "1.0.0",
             "elm/random": "1.0.0",
             "elm/time": "1.0.0",
-            "joakin/elm-canvas": "4.2.1"
+            "joakin/elm-canvas": "4.2.1",
+            "simonh1000/elm-colorpicker": "2.0.2"
         },
         "indirect": {
             "elm/json": "1.1.3",

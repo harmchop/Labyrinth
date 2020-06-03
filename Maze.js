@@ -5687,9 +5687,52 @@ var $andrewMacmurray$elm_delay$Delay$after = F3(
 				A2($andrewMacmurray$elm_delay$Delay$Duration, time, unit)),
 			msg);
 	});
+var $simonh1000$elm_colorpicker$ColorPicker$State = function (a) {
+	return {$: 'State', a: a};
+};
+var $simonh1000$elm_colorpicker$ColorPicker$Unpressed = {$: 'Unpressed'};
+var $simonh1000$elm_colorpicker$ColorPicker$blankModel = {hue: $elm$core$Maybe$Nothing, mouseTarget: $simonh1000$elm_colorpicker$ColorPicker$Unpressed};
+var $simonh1000$elm_colorpicker$ColorPicker$empty = $simonh1000$elm_colorpicker$ColorPicker$State($simonh1000$elm_colorpicker$ColorPicker$blankModel);
+var $elm$core$Dict$fromList = function (assocs) {
+	return A3(
+		$elm$core$List$foldl,
+		F2(
+			function (_v0, dict) {
+				var key = _v0.a;
+				var value = _v0.b;
+				return A3($elm$core$Dict$insert, key, value, dict);
+			}),
+		$elm$core$Dict$empty,
+		assocs);
+};
+var $avh4$elm_color$Color$RgbaSpace = F4(
+	function (a, b, c, d) {
+		return {$: 'RgbaSpace', a: a, b: b, c: c, d: d};
+	});
+var $avh4$elm_color$Color$red = A4($avh4$elm_color$Color$RgbaSpace, 204 / 255, 0 / 255, 0 / 255, 1.0);
 var $author$project$Maze$init = function (_v0) {
 	return _Utils_Tuple2(
-		{animationDelay: 20, canvasSize: 400, cellSize: 20, height: 0, linkQueue: _List_Nil, neighborhood: $elm$core$Dict$empty, wallWidth: 1, width: 0},
+		{
+			animating: true,
+			animationDelay: 1,
+			canvasSize: 700,
+			cellSize: 20,
+			color: $avh4$elm_color$Color$red,
+			colorPicker: $simonh1000$elm_colorpicker$ColorPicker$empty,
+			distances: $elm$core$Dict$fromList(
+				_List_fromArray(
+					[
+						_Utils_Tuple2(
+						_Utils_Tuple2(0, 0),
+						0)
+					])),
+			height: 0,
+			linkQueue: _List_Nil,
+			maxDist: 0,
+			neighborhood: $elm$core$Dict$empty,
+			wallWidth: 1,
+			width: 0
+		},
 		A3($andrewMacmurray$elm_delay$Delay$after, 0, $andrewMacmurray$elm_delay$Delay$Millisecond, $author$project$Maze$Reset));
 };
 var $author$project$Maze$AddLink = F2(
@@ -5740,6 +5783,98 @@ var $elm$core$List$concatMap = F2(
 	function (f, list) {
 		return $elm$core$List$concat(
 			A2($elm$core$List$map, f, list));
+	});
+var $author$project$Maze$addDistance = F2(
+	function (_v0, dist) {
+		var p = _v0.a;
+		var d = _v0.b;
+		return A3($elm$core$Dict$insert, p, d + 1, dist);
+	});
+var $elm$core$List$maybeCons = F3(
+	function (f, mx, xs) {
+		var _v0 = f(mx);
+		if (_v0.$ === 'Just') {
+			var x = _v0.a;
+			return A2($elm$core$List$cons, x, xs);
+		} else {
+			return xs;
+		}
+	});
+var $elm$core$List$filterMap = F2(
+	function (f, xs) {
+		return A3(
+			$elm$core$List$foldr,
+			$elm$core$List$maybeCons(f),
+			_List_Nil,
+			xs);
+	});
+var $author$project$Maze$links = F2(
+	function (ns, p1) {
+		var _v0 = A2($elm$core$Dict$get, p1, ns);
+		if (_v0.$ === 'Just') {
+			var a = _v0.a;
+			return a;
+		} else {
+			return _List_Nil;
+		}
+	});
+var $elm$core$Dict$member = F2(
+	function (key, dict) {
+		var _v0 = A2($elm$core$Dict$get, key, dict);
+		if (_v0.$ === 'Just') {
+			return true;
+		} else {
+			return false;
+		}
+	});
+var $author$project$Maze$distances = F2(
+	function (model, frontier) {
+		distances:
+		while (true) {
+			var dist = function (p) {
+				var _v1 = A2($elm$core$Dict$get, p, model.distances);
+				if (_v1.$ === 'Just') {
+					var d = _v1.a;
+					return d;
+				} else {
+					return 0;
+				}
+			};
+			var newFrontDist = A2(
+				$elm$core$List$concatMap,
+				function (p) {
+					return A2(
+						$elm$core$List$filterMap,
+						function (l) {
+							return A2($elm$core$Dict$member, l, model.distances) ? $elm$core$Maybe$Nothing : $elm$core$Maybe$Just(
+								_Utils_Tuple2(
+									l,
+									dist(p)));
+						},
+						A2($author$project$Maze$links, model.neighborhood, p));
+				},
+				frontier);
+			var newDist = A3($elm$core$List$foldl, $author$project$Maze$addDistance, model.distances, newFrontDist);
+			var newFront = A2(
+				$elm$core$List$map,
+				function (_v0) {
+					var p = _v0.a;
+					var d = _v0.b;
+					return p;
+				},
+				newFrontDist);
+			if ($elm$core$List$length(frontier) > 0) {
+				var $temp$model = _Utils_update(
+					model,
+					{distances: newDist}),
+					$temp$frontier = newFront;
+				model = $temp$model;
+				frontier = $temp$frontier;
+				continue distances;
+			} else {
+				return model;
+			}
+		}
 	});
 var $elm$core$Array$fromListHelp = F3(
 	function (list, nodeList, nodeListSize) {
@@ -5988,8 +6123,228 @@ var $elm$core$Array$get = F2(
 			A2($elm$core$Elm$JsArray$unsafeGet, $elm$core$Array$bitMask & index, tail)) : $elm$core$Maybe$Just(
 			A3($elm$core$Array$getHelp, startShift, index, tree)));
 	});
+var $elm$core$Debug$log = _Debug_log;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $elm$core$Basics$round = _Basics_round;
+var $elm$core$Tuple$mapFirst = F2(
+	function (func, _v0) {
+		var x = _v0.a;
+		var y = _v0.b;
+		return _Utils_Tuple2(
+			func(x),
+			y);
+	});
+var $avh4$elm_color$Color$hsla = F4(
+	function (hue, sat, light, alpha) {
+		var _v0 = _Utils_Tuple3(hue, sat, light);
+		var h = _v0.a;
+		var s = _v0.b;
+		var l = _v0.c;
+		var m2 = (l <= 0.5) ? (l * (s + 1)) : ((l + s) - (l * s));
+		var m1 = (l * 2) - m2;
+		var hueToRgb = function (h__) {
+			var h_ = (h__ < 0) ? (h__ + 1) : ((h__ > 1) ? (h__ - 1) : h__);
+			return ((h_ * 6) < 1) ? (m1 + (((m2 - m1) * h_) * 6)) : (((h_ * 2) < 1) ? m2 : (((h_ * 3) < 2) ? (m1 + (((m2 - m1) * ((2 / 3) - h_)) * 6)) : m1));
+		};
+		var b = hueToRgb(h - (1 / 3));
+		var g = hueToRgb(h);
+		var r = hueToRgb(h + (1 / 3));
+		return A4($avh4$elm_color$Color$RgbaSpace, r, g, b, alpha);
+	});
+var $avh4$elm_color$Color$fromHsla = function (_v0) {
+	var hue = _v0.hue;
+	var saturation = _v0.saturation;
+	var lightness = _v0.lightness;
+	var alpha = _v0.alpha;
+	return A4($avh4$elm_color$Color$hsla, hue, saturation, lightness, alpha);
+};
+var $elm$core$Basics$isNaN = _Basics_isNaN;
+var $elm$core$Basics$min = F2(
+	function (x, y) {
+		return (_Utils_cmp(x, y) < 0) ? x : y;
+	});
+var $avh4$elm_color$Color$toHsla = function (_v0) {
+	var r = _v0.a;
+	var g = _v0.b;
+	var b = _v0.c;
+	var a = _v0.d;
+	var minColor = A2(
+		$elm$core$Basics$min,
+		r,
+		A2($elm$core$Basics$min, g, b));
+	var maxColor = A2(
+		$elm$core$Basics$max,
+		r,
+		A2($elm$core$Basics$max, g, b));
+	var l = (minColor + maxColor) / 2;
+	var s = _Utils_eq(minColor, maxColor) ? 0 : ((l < 0.5) ? ((maxColor - minColor) / (maxColor + minColor)) : ((maxColor - minColor) / ((2 - maxColor) - minColor)));
+	var h1 = _Utils_eq(maxColor, r) ? ((g - b) / (maxColor - minColor)) : (_Utils_eq(maxColor, g) ? (2 + ((b - r) / (maxColor - minColor))) : (4 + ((r - g) / (maxColor - minColor))));
+	var h2 = h1 * (1 / 6);
+	var h3 = $elm$core$Basics$isNaN(h2) ? 0 : ((h2 < 0) ? (h2 + 1) : h2);
+	return {alpha: a, hue: h3, lightness: l, saturation: s};
+};
+var $simonh1000$elm_colorpicker$ColorPicker$widgetWidth = 200;
+var $simonh1000$elm_colorpicker$ColorPicker$calcHue = F2(
+	function (col, _v0) {
+		var x = _v0.x;
+		var mousePressed = _v0.mousePressed;
+		var hue = x / $simonh1000$elm_colorpicker$ColorPicker$widgetWidth;
+		var hsla = $avh4$elm_color$Color$toHsla(col);
+		var saturation = hsla.saturation;
+		var lightness = hsla.lightness;
+		var alpha = hsla.alpha;
+		var newCol = ((!saturation) && (lightness < 0.02)) ? _Utils_update(
+			hsla,
+			{hue: hue, lightness: 0.5, saturation: 0.5}) : _Utils_update(
+			hsla,
+			{hue: hue});
+		return $avh4$elm_color$Color$fromHsla(newCol);
+	});
+var $simonh1000$elm_colorpicker$ColorPicker$calcOpacity = F3(
+	function (col, _v0, _v1) {
+		var x = _v1.x;
+		var mousePressed = _v1.mousePressed;
+		var hsla = $avh4$elm_color$Color$toHsla(col);
+		return $avh4$elm_color$Color$fromHsla(
+			_Utils_update(
+				hsla,
+				{alpha: x / $simonh1000$elm_colorpicker$ColorPicker$widgetWidth}));
+	});
+var $simonh1000$elm_colorpicker$ColorPicker$widgetHeight = 150;
+var $simonh1000$elm_colorpicker$ColorPicker$calcSatLight = F3(
+	function (col, currHue, _v0) {
+		var x = _v0.x;
+		var y = _v0.y;
+		var mousePressed = _v0.mousePressed;
+		var hsla = $avh4$elm_color$Color$toHsla(col);
+		return $avh4$elm_color$Color$fromHsla(
+			_Utils_update(
+				hsla,
+				{hue: currHue, lightness: 1 - (y / $simonh1000$elm_colorpicker$ColorPicker$widgetHeight), saturation: x / $simonh1000$elm_colorpicker$ColorPicker$widgetWidth}));
+	});
+var $elm$core$Basics$not = _Basics_not;
+var $elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
+var $simonh1000$elm_colorpicker$ColorPicker$setHue = F3(
+	function (mouseTarget, mouseInfo, model) {
+		switch (mouseTarget.$) {
+			case 'SatLight':
+				var hue = mouseTarget.a;
+				return _Utils_update(
+					model,
+					{
+						hue: $elm$core$Maybe$Just(
+							A2($elm$core$Maybe$withDefault, hue, model.hue))
+					});
+			case 'HueSlider':
+				return _Utils_update(
+					model,
+					{
+						hue: $elm$core$Maybe$Just(mouseInfo.x / $simonh1000$elm_colorpicker$ColorPicker$widgetWidth)
+					});
+			case 'OpacitySlider':
+				var hue = mouseTarget.a;
+				return _Utils_update(
+					model,
+					{
+						hue: $elm$core$Maybe$Just(
+							A2($elm$core$Maybe$withDefault, hue, model.hue))
+					});
+			default:
+				return model;
+		}
+	});
+var $simonh1000$elm_colorpicker$ColorPicker$setMouseTarget = F2(
+	function (mouseTarget, model) {
+		return _Utils_update(
+			model,
+			{mouseTarget: mouseTarget});
+	});
+var $simonh1000$elm_colorpicker$ColorPicker$update_ = F3(
+	function (message, col, model) {
+		var calcNewColour = function (mouseTarget) {
+			switch (mouseTarget.$) {
+				case 'SatLight':
+					var hue = mouseTarget.a;
+					return A2(
+						$elm$core$Basics$composeL,
+						$elm$core$Maybe$Just,
+						A2(
+							$simonh1000$elm_colorpicker$ColorPicker$calcSatLight,
+							col,
+							A2($elm$core$Maybe$withDefault, hue, model.hue)));
+				case 'HueSlider':
+					return A2(
+						$elm$core$Basics$composeL,
+						$elm$core$Maybe$Just,
+						$simonh1000$elm_colorpicker$ColorPicker$calcHue(col));
+				case 'OpacitySlider':
+					var hue = mouseTarget.a;
+					return A2(
+						$elm$core$Basics$composeL,
+						$elm$core$Maybe$Just,
+						A2(
+							$simonh1000$elm_colorpicker$ColorPicker$calcOpacity,
+							col,
+							A2($elm$core$Maybe$withDefault, hue, model.hue)));
+				default:
+					return function (_v2) {
+						return $elm$core$Maybe$Nothing;
+					};
+			}
+		};
+		var handleMouseMove = F2(
+			function (mouseTarget, mouseInfo) {
+				return (mouseInfo.mousePressed && _Utils_eq(model.mouseTarget, mouseTarget)) ? _Utils_Tuple2(
+					A3($simonh1000$elm_colorpicker$ColorPicker$setHue, mouseTarget, mouseInfo, model),
+					A2(calcNewColour, mouseTarget, mouseInfo)) : (((!mouseInfo.mousePressed) && _Utils_eq(model.mouseTarget, mouseTarget)) ? _Utils_Tuple2(
+					A2($simonh1000$elm_colorpicker$ColorPicker$setMouseTarget, $simonh1000$elm_colorpicker$ColorPicker$Unpressed, model),
+					$elm$core$Maybe$Nothing) : _Utils_Tuple2(model, $elm$core$Maybe$Nothing));
+			});
+		switch (message.$) {
+			case 'OnMouseDown':
+				var mouseTarget = message.a;
+				var mouseInfo = message.b;
+				return _Utils_Tuple2(
+					A3(
+						$simonh1000$elm_colorpicker$ColorPicker$setHue,
+						mouseTarget,
+						mouseInfo,
+						A2($simonh1000$elm_colorpicker$ColorPicker$setMouseTarget, mouseTarget, model)),
+					A2(calcNewColour, mouseTarget, mouseInfo));
+			case 'OnMouseMove':
+				var mouseTarget = message.a;
+				var mouseInfo = message.b;
+				return A2(handleMouseMove, mouseTarget, mouseInfo);
+			case 'OnClick':
+				var mouseTarget = message.a;
+				var mouseInfo = message.b;
+				return _Utils_Tuple2(
+					A3($simonh1000$elm_colorpicker$ColorPicker$setHue, mouseTarget, mouseInfo, model),
+					A2(calcNewColour, mouseTarget, mouseInfo));
+			case 'OnMouseUp':
+				return _Utils_Tuple2(
+					A2($simonh1000$elm_colorpicker$ColorPicker$setMouseTarget, $simonh1000$elm_colorpicker$ColorPicker$Unpressed, model),
+					$elm$core$Maybe$Nothing);
+			default:
+				return _Utils_Tuple2(model, $elm$core$Maybe$Nothing);
+		}
+	});
+var $simonh1000$elm_colorpicker$ColorPicker$update = F3(
+	function (message, col, _v0) {
+		var model = _v0.a;
+		return A2(
+			$elm$core$Tuple$mapFirst,
+			$simonh1000$elm_colorpicker$ColorPicker$State,
+			A3($simonh1000$elm_colorpicker$ColorPicker$update_, message, col, model));
+	});
 var $author$project$Maze$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
@@ -6056,8 +6411,11 @@ var $author$project$Maze$update = F2(
 					_Utils_update(
 						model,
 						{
+							animating: true,
+							distances: $elm$core$Dict$empty,
 							height: $elm$core$Basics$round(height),
 							linkQueue: _List_Nil,
+							maxDist: 0,
 							neighborhood: $elm$core$Dict$empty,
 							width: $elm$core$Basics$round(width)
 						}),
@@ -6080,7 +6438,9 @@ var $author$project$Maze$update = F2(
 					function () {
 						var _v3 = model.linkQueue;
 						if (!_v3.b) {
-							return model;
+							return _Utils_update(
+								model,
+								{animating: false});
 						} else {
 							var _v4 = _v3.a;
 							var p1 = _v4.a;
@@ -6131,11 +6491,46 @@ var $author$project$Maze$update = F2(
 				return _Utils_Tuple2(
 					model,
 					A3($andrewMacmurray$elm_delay$Delay$after, 0, $andrewMacmurray$elm_delay$Delay$Millisecond, $author$project$Maze$Reset));
-			default:
+			case 'Color':
+				var modelN = A2(
+					$author$project$Maze$distances,
+					model,
+					_List_fromArray(
+						[
+							_Utils_Tuple2(0, 0)
+						]));
+				var maxDist = A3(
+					$elm$core$Dict$foldl,
+					F3(
+						function (_v5, d, m) {
+							return (_Utils_cmp(d, m) > 0) ? d : m;
+						}),
+					0,
+					modelN.distances);
+				var lg = A2($elm$core$Debug$log, 'maxDist', maxDist);
+				return _Utils_Tuple2(
+					_Utils_update(
+						modelN,
+						{maxDist: maxDist}),
+					$elm$core$Platform$Cmd$none);
+			case 'Algorithm':
 				var s = msg.a;
 				return _Utils_Tuple2(
 					model,
 					A3($andrewMacmurray$elm_delay$Delay$after, 0, $andrewMacmurray$elm_delay$Delay$Millisecond, $author$project$Maze$Reset));
+			default:
+				var m = msg.a;
+				var _v6 = A3($simonh1000$elm_colorpicker$ColorPicker$update, m, model.color, model.colorPicker);
+				var cp = _v6.a;
+				var color = _v6.b;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							color: A2($elm$core$Maybe$withDefault, model.color, color),
+							colorPicker: cp
+						}),
+					$elm$core$Platform$Cmd$none);
 		}
 	});
 var $author$project$Maze$Animate = {$: 'Animate'};
@@ -6147,6 +6542,10 @@ var $author$project$Maze$CanvasSize = function (a) {
 };
 var $author$project$Maze$CellSize = function (a) {
 	return {$: 'CellSize', a: a};
+};
+var $author$project$Maze$Color = {$: 'Color'};
+var $author$project$Maze$ColorPickerMsg = function (a) {
+	return {$: 'ColorPickerMsg', a: a};
 };
 var $author$project$Maze$WallWidth = function (a) {
 	return {$: 'WallWidth', a: a};
@@ -6166,16 +6565,6 @@ var $joakin$elm_canvas$Canvas$moveTo = function (point) {
 var $author$project$Maze$drawLineIfnt = F2(
 	function (isN, p) {
 		return isN ? $joakin$elm_canvas$Canvas$moveTo(p) : $joakin$elm_canvas$Canvas$lineTo(p);
-	});
-var $author$project$Maze$links = F2(
-	function (ns, p1) {
-		var _v0 = A2($elm$core$Dict$get, p1, ns);
-		if (_v0.$ === 'Just') {
-			var a = _v0.a;
-			return a;
-		} else {
-			return _List_Nil;
-		}
 	});
 var $elm$core$List$any = F2(
 	function (isOkay, list) {
@@ -6262,10 +6651,6 @@ var $joakin$elm_canvas$Canvas$Internal$Canvas$Path = F2(
 var $joakin$elm_canvas$Canvas$path = F2(
 	function (startingPoint, segments) {
 		return A2($joakin$elm_canvas$Canvas$Internal$Canvas$Path, startingPoint, segments);
-	});
-var $avh4$elm_color$Color$RgbaSpace = F4(
-	function (a, b, c, d) {
-		return {$: 'RgbaSpace', a: a, b: b, c: c, d: d};
 	});
 var $avh4$elm_color$Color$scaleFrom255 = function (c) {
 	return c / 255;
@@ -6598,7 +6983,7 @@ var $author$project$Maze$cell = F3(
 								_Utils_Tuple2(i, j),
 								$author$project$Maze$westNeighbor(
 									_Utils_Tuple2(i, j))),
-							_Utils_Tuple2(x1, y1))
+							_Utils_Tuple2(x1, y1 - (model.wallWidth / 2)))
 						]))
 				]));
 	});
@@ -6622,8 +7007,60 @@ var $aforemny$material_components_web_elm$Material$Button$config = $aforemny$mat
 	{additionalAttributes: _List_Nil, dense: false, disabled: false, href: $elm$core$Maybe$Nothing, icon: $elm$core$Maybe$Nothing, onClick: $elm$core$Maybe$Nothing, target: $elm$core$Maybe$Nothing, trailingIcon: false});
 var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$core$String$fromFloat = _String_fromNumber;
+var $joakin$elm_canvas$Canvas$Settings$fill = function (color) {
+	return $joakin$elm_canvas$Canvas$Internal$Canvas$SettingDrawOp(
+		$joakin$elm_canvas$Canvas$Internal$Canvas$Fill(color));
+};
+var $avh4$elm_color$Color$fromRgba = function (components) {
+	return A4($avh4$elm_color$Color$RgbaSpace, components.red, components.green, components.blue, components.alpha);
+};
+var $joakin$elm_canvas$Canvas$Internal$Canvas$Rect = F3(
+	function (a, b, c) {
+		return {$: 'Rect', a: a, b: b, c: c};
+	});
+var $joakin$elm_canvas$Canvas$rect = F3(
+	function (pos, width, height) {
+		return A3($joakin$elm_canvas$Canvas$Internal$Canvas$Rect, pos, width, height);
+	});
+var $avh4$elm_color$Color$toRgba = function (_v0) {
+	var r = _v0.a;
+	var g = _v0.b;
+	var b = _v0.c;
+	var a = _v0.d;
+	return {alpha: a, blue: b, green: g, red: r};
+};
+var $author$project$Maze$ground = F4(
+	function (model, _v0, d, gs) {
+		var i = _v0.a;
+		var j = _v0.b;
+		var w = model.cellSize;
+		var x = 4 + (i * w);
+		var y = 4 + (j * w);
+		var rgba = $avh4$elm_color$Color$toRgba(model.color);
+		return A2(
+			$elm$core$List$cons,
+			A2(
+				$joakin$elm_canvas$Canvas$shapes,
+				_List_fromArray(
+					[
+						$joakin$elm_canvas$Canvas$Settings$fill(
+						$avh4$elm_color$Color$fromRgba(
+							{alpha: d / model.maxDist, blue: rgba.blue, green: rgba.green, red: rgba.red}))
+					]),
+				_List_fromArray(
+					[
+						A3(
+						$joakin$elm_canvas$Canvas$rect,
+						_Utils_Tuple2(x, y),
+						w,
+						w)
+					])),
+			gs);
+	});
 var $elm$html$Html$h4 = _VirtualDom_node('h4');
 var $elm$html$Html$input = _VirtualDom_node('input');
+var $elm$virtual_dom$VirtualDom$map = _VirtualDom_map;
+var $elm$html$Html$map = $elm$virtual_dom$VirtualDom$map;
 var $elm$html$Html$Attributes$stringProperty = F2(
 	function (key, string) {
 		return A2(
@@ -6737,24 +7174,6 @@ var $aforemny$material_components_web_elm$Material$Button$disabledProp = functio
 			'disabled',
 			$elm$json$Json$Encode$bool(disabled)));
 };
-var $elm$core$List$maybeCons = F3(
-	function (f, mx, xs) {
-		var _v0 = f(mx);
-		if (_v0.$ === 'Just') {
-			var x = _v0.a;
-			return A2($elm$core$List$cons, x, xs);
-		} else {
-			return xs;
-		}
-	});
-var $elm$core$List$filterMap = F2(
-	function (f, xs) {
-		return A3(
-			$elm$core$List$foldr,
-			$elm$core$List$maybeCons(f),
-			_List_Nil,
-			xs);
-	});
 var $elm$html$Html$Attributes$href = function (url) {
 	return A2(
 		$elm$html$Html$Attributes$stringProperty,
@@ -6809,7 +7228,6 @@ var $aforemny$material_components_web_elm$Material$Button$iconElt = function (_v
 		},
 		icon);
 };
-var $elm$core$Basics$not = _Basics_not;
 var $aforemny$material_components_web_elm$Material$Button$leadingIconElt = function (config_) {
 	var trailingIcon = config_.a.trailingIcon;
 	return (!trailingIcon) ? $aforemny$material_components_web_elm$Material$Button$iconElt(config_) : $elm$core$Maybe$Nothing;
@@ -6910,6 +7328,22 @@ var $aforemny$material_components_web_elm$Material$Button$raised = F2(
 		return A3($aforemny$material_components_web_elm$Material$Button$button, $aforemny$material_components_web_elm$Material$Button$Raised, config_, label);
 	});
 var $elm$html$Html$select = _VirtualDom_node('select');
+var $aforemny$material_components_web_elm$Material$Button$setAttributes = F2(
+	function (additionalAttributes, _v0) {
+		var config_ = _v0.a;
+		return $aforemny$material_components_web_elm$Material$Button$Internal$Config(
+			_Utils_update(
+				config_,
+				{additionalAttributes: additionalAttributes}));
+	});
+var $aforemny$material_components_web_elm$Material$Button$setDisabled = F2(
+	function (disabled, _v0) {
+		var config_ = _v0.a;
+		return $aforemny$material_components_web_elm$Material$Button$Internal$Config(
+			_Utils_update(
+				config_,
+				{disabled: disabled}));
+	});
 var $aforemny$material_components_web_elm$Material$Button$setOnClick = F2(
 	function (onClick, _v0) {
 		var config_ = _v0.a;
@@ -7584,6 +8018,522 @@ var $joakin$elm_canvas$Canvas$toHtml = F3(
 var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
 var $aforemny$material_components_web_elm$Material$Typography$typography = $elm$html$Html$Attributes$class('mdc-typography');
 var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
+var $simonh1000$elm_colorpicker$ColorPicker$markerAttrs = _List_fromArray(
+	[
+		A2($elm$html$Html$Attributes$style, 'position', 'absolute'),
+		A2($elm$html$Html$Attributes$style, 'top', '1px'),
+		A2($elm$html$Html$Attributes$style, 'bottom', '1px'),
+		A2($elm$html$Html$Attributes$style, 'border', '1px solid #ddd'),
+		A2($elm$html$Html$Attributes$style, 'background-color', '#ffffff'),
+		A2($elm$html$Html$Attributes$style, 'width', '6px'),
+		A2($elm$html$Html$Attributes$style, 'pointer-events', 'none')
+	]);
+var $simonh1000$elm_colorpicker$ColorPicker$alphaMarker = function (alpha) {
+	var correction = 4;
+	var xVal = $elm$core$String$fromInt(
+		$elm$core$Basics$round((alpha * $simonh1000$elm_colorpicker$ColorPicker$widgetWidth) - correction));
+	return A2(
+		$elm$html$Html$div,
+		A2(
+			$elm$core$List$cons,
+			A2($elm$html$Html$Attributes$style, 'left', xVal + 'px'),
+			$simonh1000$elm_colorpicker$ColorPicker$markerAttrs),
+		_List_Nil);
+};
+var $simonh1000$elm_colorpicker$ColorPicker$NoOp = {$: 'NoOp'};
+var $simonh1000$elm_colorpicker$ColorPicker$bubblePreventer = A2(
+	$elm$html$Html$Events$stopPropagationOn,
+	'click',
+	$elm$json$Json$Decode$succeed(
+		_Utils_Tuple2($simonh1000$elm_colorpicker$ColorPicker$NoOp, true)));
+var $simonh1000$elm_colorpicker$ColorPicker$checkedBkgStyles = _List_fromArray(
+	[
+		A2($elm$html$Html$Attributes$style, 'background-size', '12px 12px'),
+		A2($elm$html$Html$Attributes$style, 'background-position', '0 0, 0 6px, 6px -6px, -6px 0px'),
+		A2($elm$html$Html$Attributes$style, 'background-image', 'linear-gradient(45deg, #808080 25%, transparent 25%), linear-gradient(-45deg, #808080 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #808080 75%), linear-gradient(-45deg, transparent 75%, #808080 75%)')
+	]);
+var $avh4$elm_color$Color$hsl = F3(
+	function (h, s, l) {
+		return A4($avh4$elm_color$Color$hsla, h, s, l, 1.0);
+	});
+var $simonh1000$elm_colorpicker$ColorPicker$hueMarker = function (lastHue) {
+	var correction = 4;
+	var xVal = $elm$core$String$fromInt(
+		$elm$core$Basics$round((lastHue * $simonh1000$elm_colorpicker$ColorPicker$widgetWidth) - correction));
+	return A2(
+		$elm$html$Html$div,
+		A2(
+			$elm$core$List$cons,
+			A2($elm$html$Html$Attributes$style, 'left', xVal + 'px'),
+			$simonh1000$elm_colorpicker$ColorPicker$markerAttrs),
+		_List_Nil);
+};
+var $simonh1000$elm_colorpicker$ColorPicker$HueSlider = {$: 'HueSlider'};
+var $simonh1000$elm_colorpicker$ColorPicker$OnMouseMove = F2(
+	function (a, b) {
+		return {$: 'OnMouseMove', a: a, b: b};
+	});
+var $elm$svg$Svg$Attributes$class = _VirtualDom_attribute('class');
+var $elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
+var $elm$svg$Svg$defs = $elm$svg$Svg$trustedNode('defs');
+var $elm$svg$Svg$Attributes$fill = _VirtualDom_attribute('fill');
+var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
+var $elm$svg$Svg$Attributes$id = _VirtualDom_attribute('id');
+var $elm$svg$Svg$linearGradient = $elm$svg$Svg$trustedNode('linearGradient');
+var $elm$svg$Svg$Attributes$offset = _VirtualDom_attribute('offset');
+var $elm$svg$Svg$rect = $elm$svg$Svg$trustedNode('rect');
+var $elm$svg$Svg$Attributes$display = _VirtualDom_attribute('display');
+var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
+var $simonh1000$elm_colorpicker$ColorPicker$sliderStyles = _List_fromArray(
+	[
+		$elm$svg$Svg$Attributes$width(
+		$elm$core$String$fromInt($simonh1000$elm_colorpicker$ColorPicker$widgetWidth)),
+		$elm$svg$Svg$Attributes$height('100%'),
+		$elm$svg$Svg$Attributes$display('block')
+	]);
+var $elm$svg$Svg$stop = $elm$svg$Svg$trustedNode('stop');
+var $elm$svg$Svg$Attributes$stopColor = _VirtualDom_attribute('stop-color');
+var $elm$svg$Svg$Attributes$stopOpacity = _VirtualDom_attribute('stop-opacity');
+var $elm$svg$Svg$svg = $elm$svg$Svg$trustedNode('svg');
+var $simonh1000$elm_colorpicker$ColorPicker$OnClick = F2(
+	function (a, b) {
+		return {$: 'OnClick', a: a, b: b};
+	});
+var $simonh1000$elm_colorpicker$ColorPicker$OnMouseDown = F2(
+	function (a, b) {
+		return {$: 'OnMouseDown', a: a, b: b};
+	});
+var $simonh1000$elm_colorpicker$ColorPicker$OnMouseUp = {$: 'OnMouseUp'};
+var $simonh1000$elm_colorpicker$ColorPicker$MouseInfo = F3(
+	function (x, y, mousePressed) {
+		return {mousePressed: mousePressed, x: x, y: y};
+	});
+var $elm$json$Json$Decode$int = _Json_decodeInt;
+var $simonh1000$elm_colorpicker$ColorPicker$decodeMouseInfo = A4(
+	$elm$json$Json$Decode$map3,
+	$simonh1000$elm_colorpicker$ColorPicker$MouseInfo,
+	A2($elm$json$Json$Decode$field, 'offsetX', $elm$json$Json$Decode$int),
+	A2($elm$json$Json$Decode$field, 'offsetY', $elm$json$Json$Decode$int),
+	A2(
+		$elm$json$Json$Decode$map,
+		$elm$core$Basics$neq(0),
+		A2($elm$json$Json$Decode$field, 'buttons', $elm$json$Json$Decode$int)));
+var $elm$svg$Svg$Events$on = $elm$html$Html$Events$on;
+var $simonh1000$elm_colorpicker$ColorPicker$onClickSvg = function (msgCreator) {
+	return A2(
+		$elm$svg$Svg$Events$on,
+		'click',
+		A2($elm$json$Json$Decode$map, msgCreator, $simonh1000$elm_colorpicker$ColorPicker$decodeMouseInfo));
+};
+var $simonh1000$elm_colorpicker$ColorPicker$onMouseDownSvg = function (msgCreator) {
+	return A2(
+		$elm$svg$Svg$Events$on,
+		'mousedown',
+		A2($elm$json$Json$Decode$map, msgCreator, $simonh1000$elm_colorpicker$ColorPicker$decodeMouseInfo));
+};
+var $simonh1000$elm_colorpicker$ColorPicker$onMouseMoveSvg = function (msgCreator) {
+	return A2(
+		$elm$svg$Svg$Events$on,
+		'mousemove',
+		A2($elm$json$Json$Decode$map, msgCreator, $simonh1000$elm_colorpicker$ColorPicker$decodeMouseInfo));
+};
+var $elm$svg$Svg$Events$onMouseUp = function (msg) {
+	return A2(
+		$elm$html$Html$Events$on,
+		'mouseup',
+		$elm$json$Json$Decode$succeed(msg));
+};
+var $simonh1000$elm_colorpicker$ColorPicker$svgDragAttrs = F3(
+	function (currMouseTgt, thisTgt, onMoveMsg) {
+		var common = _List_fromArray(
+			[
+				$simonh1000$elm_colorpicker$ColorPicker$onMouseDownSvg(
+				$simonh1000$elm_colorpicker$ColorPicker$OnMouseDown(thisTgt)),
+				$elm$svg$Svg$Events$onMouseUp($simonh1000$elm_colorpicker$ColorPicker$OnMouseUp),
+				$simonh1000$elm_colorpicker$ColorPicker$onClickSvg(
+				$simonh1000$elm_colorpicker$ColorPicker$OnClick(thisTgt))
+			]);
+		return _Utils_eq(currMouseTgt, thisTgt) ? A2(
+			$elm$core$List$cons,
+			$simonh1000$elm_colorpicker$ColorPicker$onMouseMoveSvg(onMoveMsg),
+			common) : common;
+	});
+var $elm$svg$Svg$Attributes$x = _VirtualDom_attribute('x');
+var $elm$svg$Svg$Attributes$x1 = _VirtualDom_attribute('x1');
+var $elm$svg$Svg$Attributes$x2 = _VirtualDom_attribute('x2');
+var $elm$svg$Svg$Attributes$y = _VirtualDom_attribute('y');
+var $elm$svg$Svg$Attributes$y1 = _VirtualDom_attribute('y1');
+var $elm$svg$Svg$Attributes$y2 = _VirtualDom_attribute('y2');
+var $simonh1000$elm_colorpicker$ColorPicker$huePalette = function (mouseTarget) {
+	var stops = _List_fromArray(
+		[
+			_Utils_Tuple2('0%', '#FF0000'),
+			_Utils_Tuple2('17%', '#FF00FF'),
+			_Utils_Tuple2('33%', '#0000FF'),
+			_Utils_Tuple2('50%', '#00FFFF'),
+			_Utils_Tuple2('66%', '#00FF00'),
+			_Utils_Tuple2('83%', '#FFFF00'),
+			_Utils_Tuple2('100%', '#FF0000')
+		]);
+	var mkStop = function (_v0) {
+		var os = _v0.a;
+		var sc = _v0.b;
+		return A2(
+			$elm$svg$Svg$stop,
+			_List_fromArray(
+				[
+					$elm$svg$Svg$Attributes$offset(os),
+					$elm$svg$Svg$Attributes$stopColor(sc),
+					$elm$svg$Svg$Attributes$stopOpacity('1')
+				]),
+			_List_Nil);
+	};
+	return A2(
+		$elm$svg$Svg$svg,
+		A2(
+			$elm$core$List$cons,
+			$elm$svg$Svg$Attributes$class('hue-picker'),
+			$simonh1000$elm_colorpicker$ColorPicker$sliderStyles),
+		_List_fromArray(
+			[
+				A2(
+				$elm$svg$Svg$defs,
+				_List_Nil,
+				_List_fromArray(
+					[
+						A2(
+						$elm$svg$Svg$linearGradient,
+						_List_fromArray(
+							[
+								$elm$svg$Svg$Attributes$id('gradient-hsv'),
+								$elm$svg$Svg$Attributes$x1('100%'),
+								$elm$svg$Svg$Attributes$y1('0%'),
+								$elm$svg$Svg$Attributes$x2('0%'),
+								$elm$svg$Svg$Attributes$y2('0%')
+							]),
+						A2($elm$core$List$map, mkStop, stops))
+					])),
+				A2(
+				$elm$svg$Svg$rect,
+				_Utils_ap(
+					_List_fromArray(
+						[
+							$elm$svg$Svg$Attributes$x('0'),
+							$elm$svg$Svg$Attributes$y('0'),
+							$elm$svg$Svg$Attributes$width(
+							$elm$core$String$fromInt($simonh1000$elm_colorpicker$ColorPicker$widgetWidth)),
+							$elm$svg$Svg$Attributes$height('100%'),
+							$elm$svg$Svg$Attributes$fill('url(#gradient-hsv)')
+						]),
+					A3(
+						$simonh1000$elm_colorpicker$ColorPicker$svgDragAttrs,
+						mouseTarget,
+						$simonh1000$elm_colorpicker$ColorPicker$HueSlider,
+						$simonh1000$elm_colorpicker$ColorPicker$OnMouseMove($simonh1000$elm_colorpicker$ColorPicker$HueSlider))),
+				_List_Nil)
+			]));
+};
+var $simonh1000$elm_colorpicker$ColorPicker$OpacitySlider = function (a) {
+	return {$: 'OpacitySlider', a: a};
+};
+var $simonh1000$elm_colorpicker$ColorPicker$onClickHtml = function (msgCreator) {
+	return A2(
+		$elm$html$Html$Events$on,
+		'click',
+		A2($elm$json$Json$Decode$map, msgCreator, $simonh1000$elm_colorpicker$ColorPicker$decodeMouseInfo));
+};
+var $elm$html$Html$Events$onMouseUp = function (msg) {
+	return A2(
+		$elm$html$Html$Events$on,
+		'mouseup',
+		$elm$json$Json$Decode$succeed(msg));
+};
+var $simonh1000$elm_colorpicker$ColorPicker$htmlDragAttrs = F3(
+	function (currMouseTgt, thisTgt, onMoveMsg) {
+		var common = _List_fromArray(
+			[
+				A2(
+				$elm$html$Html$Events$on,
+				'mousedown',
+				A2(
+					$elm$json$Json$Decode$map,
+					$simonh1000$elm_colorpicker$ColorPicker$OnMouseDown(thisTgt),
+					$simonh1000$elm_colorpicker$ColorPicker$decodeMouseInfo)),
+				$elm$html$Html$Events$onMouseUp($simonh1000$elm_colorpicker$ColorPicker$OnMouseUp),
+				$simonh1000$elm_colorpicker$ColorPicker$onClickHtml(
+				$simonh1000$elm_colorpicker$ColorPicker$OnClick(thisTgt))
+			]);
+		return _Utils_eq(currMouseTgt, thisTgt) ? A2(
+			$elm$core$List$cons,
+			A2(
+				$elm$html$Html$Events$on,
+				'mousemove',
+				A2($elm$json$Json$Decode$map, onMoveMsg, $simonh1000$elm_colorpicker$ColorPicker$decodeMouseInfo)),
+			common) : common;
+	});
+var $simonh1000$elm_colorpicker$ColorPicker$opacityPalette = F2(
+	function (hsla, model) {
+		var mouseTarget = $simonh1000$elm_colorpicker$ColorPicker$OpacitySlider(hsla.hue);
+		var mkCol = function (op) {
+			return $avh4$elm_color$Color$toCssString(
+				A4($avh4$elm_color$Color$hsla, hsla.hue, hsla.saturation, hsla.lightness, op));
+		};
+		var grad = 'linear-gradient(0.25turn, ' + (mkCol(0) + (', ' + (mkCol(1) + ')')));
+		var overlay = _List_fromArray(
+			[
+				A2($elm$html$Html$Attributes$style, 'background', grad),
+				A2($elm$html$Html$Attributes$style, 'height', '100%'),
+				A2($elm$html$Html$Attributes$style, 'width', '100%')
+			]);
+		return A2(
+			$elm$html$Html$div,
+			_Utils_ap(
+				overlay,
+				A3(
+					$simonh1000$elm_colorpicker$ColorPicker$htmlDragAttrs,
+					model.mouseTarget,
+					mouseTarget,
+					$simonh1000$elm_colorpicker$ColorPicker$OnMouseMove(mouseTarget))),
+			_List_Nil);
+	});
+var $simonh1000$elm_colorpicker$ColorPicker$pickerIndicator = function (col) {
+	var adjustment = 4;
+	var _v0 = $avh4$elm_color$Color$toHsla(col);
+	var saturation = _v0.saturation;
+	var lightness = _v0.lightness;
+	var borderColor = (lightness > 0.95) ? '#cccccc' : '#ffffff';
+	var cy_ = $elm$core$String$fromInt(
+		$elm$core$Basics$round(($simonh1000$elm_colorpicker$ColorPicker$widgetHeight - (lightness * $simonh1000$elm_colorpicker$ColorPicker$widgetHeight)) - adjustment));
+	var cx_ = $elm$core$String$fromInt(
+		$elm$core$Basics$round((saturation * $simonh1000$elm_colorpicker$ColorPicker$widgetWidth) - adjustment));
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				A2($elm$html$Html$Attributes$style, 'position', 'absolute'),
+				A2($elm$html$Html$Attributes$style, 'top', cy_ + 'px'),
+				A2($elm$html$Html$Attributes$style, 'left', cx_ + 'px'),
+				A2($elm$html$Html$Attributes$style, 'border-radius', '100%'),
+				A2($elm$html$Html$Attributes$style, 'border', '2px solid ' + borderColor),
+				A2($elm$html$Html$Attributes$style, 'width', '6px'),
+				A2($elm$html$Html$Attributes$style, 'height', '6px'),
+				A2($elm$html$Html$Attributes$style, 'pointer-events', 'none')
+			]),
+		_List_Nil);
+};
+var $simonh1000$elm_colorpicker$ColorPicker$pickerStyles = _List_fromArray(
+	[
+		A2($elm$html$Html$Attributes$style, 'cursor', 'crosshair'),
+		A2($elm$html$Html$Attributes$style, 'position', 'relative')
+	]);
+var $simonh1000$elm_colorpicker$ColorPicker$SatLight = function (a) {
+	return {$: 'SatLight', a: a};
+};
+var $simonh1000$elm_colorpicker$ColorPicker$satLightPalette = F3(
+	function (hue, colCss, mouseTarget) {
+		return A2(
+			$elm$svg$Svg$svg,
+			_List_fromArray(
+				[
+					$elm$svg$Svg$Attributes$width(
+					$elm$core$String$fromInt($simonh1000$elm_colorpicker$ColorPicker$widgetWidth)),
+					$elm$svg$Svg$Attributes$height(
+					$elm$core$String$fromInt($simonh1000$elm_colorpicker$ColorPicker$widgetHeight)),
+					$elm$svg$Svg$Attributes$class('main-picker'),
+					$elm$svg$Svg$Attributes$display('block')
+				]),
+			_List_fromArray(
+				[
+					A2(
+					$elm$svg$Svg$defs,
+					_List_Nil,
+					_List_fromArray(
+						[
+							A2(
+							$elm$svg$Svg$linearGradient,
+							_List_fromArray(
+								[
+									$elm$svg$Svg$Attributes$id('pickerSaturation')
+								]),
+							_List_fromArray(
+								[
+									A2(
+									$elm$svg$Svg$stop,
+									_List_fromArray(
+										[
+											$elm$svg$Svg$Attributes$offset('0'),
+											$elm$svg$Svg$Attributes$stopColor('#808080'),
+											$elm$svg$Svg$Attributes$stopOpacity('1')
+										]),
+									_List_Nil),
+									A2(
+									$elm$svg$Svg$stop,
+									_List_fromArray(
+										[
+											$elm$svg$Svg$Attributes$offset('1'),
+											$elm$svg$Svg$Attributes$stopColor('#808080'),
+											$elm$svg$Svg$Attributes$stopOpacity('0')
+										]),
+									_List_Nil)
+								])),
+							A2(
+							$elm$svg$Svg$linearGradient,
+							_List_fromArray(
+								[
+									$elm$svg$Svg$Attributes$id('pickerBrightness'),
+									$elm$svg$Svg$Attributes$x1('0'),
+									$elm$svg$Svg$Attributes$y1('0'),
+									$elm$svg$Svg$Attributes$x2('0'),
+									$elm$svg$Svg$Attributes$y2('1')
+								]),
+							_List_fromArray(
+								[
+									A2(
+									$elm$svg$Svg$stop,
+									_List_fromArray(
+										[
+											$elm$svg$Svg$Attributes$offset('0'),
+											$elm$svg$Svg$Attributes$stopColor('#fff'),
+											$elm$svg$Svg$Attributes$stopOpacity('1')
+										]),
+									_List_Nil),
+									A2(
+									$elm$svg$Svg$stop,
+									_List_fromArray(
+										[
+											$elm$svg$Svg$Attributes$offset('0.499'),
+											$elm$svg$Svg$Attributes$stopColor('#fff'),
+											$elm$svg$Svg$Attributes$stopOpacity('0')
+										]),
+									_List_Nil),
+									A2(
+									$elm$svg$Svg$stop,
+									_List_fromArray(
+										[
+											$elm$svg$Svg$Attributes$offset('0.5'),
+											$elm$svg$Svg$Attributes$stopColor('#000'),
+											$elm$svg$Svg$Attributes$stopOpacity('0')
+										]),
+									_List_Nil),
+									A2(
+									$elm$svg$Svg$stop,
+									_List_fromArray(
+										[
+											$elm$svg$Svg$Attributes$offset('1'),
+											$elm$svg$Svg$Attributes$stopColor('#000'),
+											$elm$svg$Svg$Attributes$stopOpacity('1')
+										]),
+									_List_Nil)
+								]))
+						])),
+					A2(
+					$elm$svg$Svg$rect,
+					_List_fromArray(
+						[
+							$elm$svg$Svg$Attributes$width(
+							$elm$core$String$fromInt($simonh1000$elm_colorpicker$ColorPicker$widgetWidth)),
+							$elm$svg$Svg$Attributes$height(
+							$elm$core$String$fromInt($simonh1000$elm_colorpicker$ColorPicker$widgetHeight)),
+							$elm$svg$Svg$Attributes$fill(colCss),
+							$elm$svg$Svg$Attributes$id('picker')
+						]),
+					_List_Nil),
+					A2(
+					$elm$svg$Svg$rect,
+					_List_fromArray(
+						[
+							$elm$svg$Svg$Attributes$width(
+							$elm$core$String$fromInt($simonh1000$elm_colorpicker$ColorPicker$widgetWidth)),
+							$elm$svg$Svg$Attributes$height(
+							$elm$core$String$fromInt($simonh1000$elm_colorpicker$ColorPicker$widgetHeight)),
+							$elm$svg$Svg$Attributes$fill('url(#pickerSaturation)')
+						]),
+					_List_Nil),
+					A2(
+					$elm$svg$Svg$rect,
+					_Utils_ap(
+						_List_fromArray(
+							[
+								$elm$svg$Svg$Attributes$width(
+								$elm$core$String$fromInt($simonh1000$elm_colorpicker$ColorPicker$widgetWidth)),
+								$elm$svg$Svg$Attributes$height(
+								$elm$core$String$fromInt($simonh1000$elm_colorpicker$ColorPicker$widgetHeight)),
+								$elm$svg$Svg$Attributes$fill('url(#pickerBrightness)')
+							]),
+						A3(
+							$simonh1000$elm_colorpicker$ColorPicker$svgDragAttrs,
+							mouseTarget,
+							$simonh1000$elm_colorpicker$ColorPicker$SatLight(hue),
+							$simonh1000$elm_colorpicker$ColorPicker$OnMouseMove(
+								$simonh1000$elm_colorpicker$ColorPicker$SatLight(hue)))),
+					_List_Nil)
+				]));
+	});
+var $simonh1000$elm_colorpicker$ColorPicker$sliderContainerStyles = function (name) {
+	return _List_fromArray(
+		[
+			A2(
+			$elm$html$Html$Attributes$style,
+			'width',
+			$elm$core$String$fromInt($simonh1000$elm_colorpicker$ColorPicker$widgetWidth) + 'px'),
+			A2($elm$html$Html$Attributes$style, 'height', '12px'),
+			A2($elm$html$Html$Attributes$style, 'marginTop', '8px'),
+			$elm$html$Html$Attributes$class('color-picker-slider ' + name)
+		]);
+};
+var $simonh1000$elm_colorpicker$ColorPicker$view = F2(
+	function (col, _v0) {
+		var model = _v0.a;
+		var hsla = $avh4$elm_color$Color$toHsla(col);
+		var hue = A2($elm$core$Maybe$withDefault, hsla.hue, model.hue);
+		var colCss = $avh4$elm_color$Color$toCssString(
+			A3($avh4$elm_color$Color$hsl, hue, 1, 0.5));
+		return A2(
+			$elm$html$Html$div,
+			_List_fromArray(
+				[
+					A2($elm$html$Html$Attributes$style, 'background-color', 'white'),
+					A2($elm$html$Html$Attributes$style, 'padding', '6px'),
+					A2($elm$html$Html$Attributes$style, 'display', 'inline-block'),
+					A2($elm$html$Html$Attributes$style, 'border-radius', '5px'),
+					A2($elm$html$Html$Attributes$style, 'box-shadow', 'rgba(0, 0, 0, 0.15) 0px 0px 0px 1px, rgba(0, 0, 0, 0.15) 0px 8px 16px'),
+					$elm$html$Html$Attributes$class('color-picker-container'),
+					$simonh1000$elm_colorpicker$ColorPicker$bubblePreventer
+				]),
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$div,
+					$simonh1000$elm_colorpicker$ColorPicker$pickerStyles,
+					_List_fromArray(
+						[
+							A3($simonh1000$elm_colorpicker$ColorPicker$satLightPalette, hue, colCss, model.mouseTarget),
+							$simonh1000$elm_colorpicker$ColorPicker$pickerIndicator(col)
+						])),
+					A2(
+					$elm$html$Html$div,
+					_Utils_ap(
+						$simonh1000$elm_colorpicker$ColorPicker$pickerStyles,
+						$simonh1000$elm_colorpicker$ColorPicker$sliderContainerStyles('hue')),
+					_List_fromArray(
+						[
+							$simonh1000$elm_colorpicker$ColorPicker$huePalette(model.mouseTarget),
+							$simonh1000$elm_colorpicker$ColorPicker$hueMarker(hue)
+						])),
+					A2(
+					$elm$html$Html$div,
+					_Utils_ap(
+						$simonh1000$elm_colorpicker$ColorPicker$checkedBkgStyles,
+						_Utils_ap(
+							$simonh1000$elm_colorpicker$ColorPicker$pickerStyles,
+							$simonh1000$elm_colorpicker$ColorPicker$sliderContainerStyles('opacity'))),
+					_List_fromArray(
+						[
+							A2($simonh1000$elm_colorpicker$ColorPicker$opacityPalette, hsla, model),
+							$simonh1000$elm_colorpicker$ColorPicker$alphaMarker(hsla.alpha)
+						]))
+				]));
+	});
 var $author$project$Maze$view = function (model) {
 	var res = A2(
 		$elm$html$Html$div,
@@ -7591,38 +8541,6 @@ var $author$project$Maze$view = function (model) {
 			[$aforemny$material_components_web_elm$Material$Typography$typography]),
 		_List_fromArray(
 			[
-				A3(
-				$joakin$elm_canvas$Canvas$toHtml,
-				_Utils_Tuple2(model.canvasSize, model.canvasSize),
-				_List_fromArray(
-					[
-						A2($elm$html$Html$Attributes$style, 'float', 'left')
-					]),
-				A2(
-					$elm$core$List$cons,
-					A3(
-						$joakin$elm_canvas$Canvas$clear,
-						_Utils_Tuple2(0, 0),
-						model.canvasSize,
-						model.canvasSize),
-					A2(
-						$elm$core$List$concatMap,
-						function (j) {
-							return A2(
-								$elm$core$List$map,
-								$elm$core$Basics$apR(j),
-								A2(
-									$elm$core$List$map,
-									$author$project$Maze$cell(model),
-									A2(
-										$elm$core$List$map,
-										$elm$core$Basics$toFloat,
-										A2($elm$core$List$range, 0, model.width))));
-						},
-						A2(
-							$elm$core$List$map,
-							$elm$core$Basics$toFloat,
-							A2($elm$core$List$range, 0, model.height))))),
 				A2(
 				$elm$html$Html$div,
 				_List_fromArray(
@@ -7630,14 +8548,36 @@ var $author$project$Maze$view = function (model) {
 						$aforemny$material_components_web_elm$Material$Typography$typography,
 						A2($elm$html$Html$Attributes$style, 'display', 'block'),
 						A2($elm$html$Html$Attributes$style, 'width', '200px'),
-						A2($elm$html$Html$Attributes$style, 'float', 'left')
+						A2($elm$html$Html$Attributes$style, 'float', 'left'),
+						A2($elm$html$Html$Attributes$style, 'margin-right', '20px')
 					]),
 				_List_fromArray(
 					[
 						A2(
 						$aforemny$material_components_web_elm$Material$Button$raised,
-						A2($aforemny$material_components_web_elm$Material$Button$setOnClick, $author$project$Maze$Animate, $aforemny$material_components_web_elm$Material$Button$config),
-						'Animate'),
+						A2(
+							$aforemny$material_components_web_elm$Material$Button$setAttributes,
+							_List_fromArray(
+								[
+									A2($elm$html$Html$Attributes$style, 'width', '200px'),
+									A2($elm$html$Html$Attributes$style, 'margin-bottom', '10px')
+								]),
+							A2($aforemny$material_components_web_elm$Material$Button$setOnClick, $author$project$Maze$Animate, $aforemny$material_components_web_elm$Material$Button$config)),
+						'Generate'),
+						A2(
+						$aforemny$material_components_web_elm$Material$Button$raised,
+						A2(
+							$aforemny$material_components_web_elm$Material$Button$setAttributes,
+							_List_fromArray(
+								[
+									A2($elm$html$Html$Attributes$style, 'width', '200px'),
+									A2($elm$html$Html$Attributes$style, 'margin-bottom', '10px')
+								]),
+							A2(
+								$aforemny$material_components_web_elm$Material$Button$setDisabled,
+								model.animating,
+								A2($aforemny$material_components_web_elm$Material$Button$setOnClick, $author$project$Maze$Color, $aforemny$material_components_web_elm$Material$Button$config))),
+						'Color'),
 						A2(
 						$elm$html$Html$h4,
 						_List_fromArray(
@@ -7652,7 +8592,7 @@ var $author$project$Maze$view = function (model) {
 							[$aforemny$material_components_web_elm$Material$Typography$subtitle2]),
 						_List_fromArray(
 							[
-								$elm$html$Html$text('Tiling Algorithm')
+								$elm$html$Html$text('Generation Algorithm')
 							])),
 						A2(
 						$elm$html$Html$select,
@@ -7670,7 +8610,7 @@ var $author$project$Maze$view = function (model) {
 									]),
 								_List_fromArray(
 									[
-										$elm$html$Html$text('BinaryTree')
+										$elm$html$Html$text('Binary Tree')
 									])),
 								A2(
 								$elm$html$Html$option,
@@ -7681,6 +8621,103 @@ var $author$project$Maze$view = function (model) {
 								_List_fromArray(
 									[
 										$elm$html$Html$text('Sidewinder')
+									])),
+								A2(
+								$elm$html$Html$option,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$value('AldousBroder')
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Aldous Broder')
+									])),
+								A2(
+								$elm$html$Html$option,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$value('Wilsons')
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Wilson\'s')
+									])),
+								A2(
+								$elm$html$Html$option,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$value('HuntAndKill')
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Hunt-and-Kill')
+									])),
+								A2(
+								$elm$html$Html$option,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$value('RecursiveBacktracking')
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Recursive Backtracking')
+									])),
+								A2(
+								$elm$html$Html$option,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$value('Prims')
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Prim\'s')
+									]))
+							])),
+						A2(
+						$elm$html$Html$div,
+						_List_fromArray(
+							[$aforemny$material_components_web_elm$Material$Typography$subtitle2]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Coloring Algorithm')
+							])),
+						A2(
+						$elm$html$Html$select,
+						_List_fromArray(
+							[
+								A2($elm$html$Html$Attributes$style, 'width', '100%')
+							]),
+						_List_fromArray(
+							[
+								A2(
+								$elm$html$Html$option,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$value('DFS')
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('DFS')
+									])),
+								A2(
+								$elm$html$Html$option,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$value('BFS')
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('BFS')
+									])),
+								A2(
+								$elm$html$Html$option,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$value('Dijkstra')
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text('Dijkstra')
 									]))
 							])),
 						A2(
@@ -7697,7 +8734,7 @@ var $author$project$Maze$view = function (model) {
 							[$aforemny$material_components_web_elm$Material$Typography$subtitle2]),
 						_List_fromArray(
 							[
-								$elm$html$Html$text('Animation Delay')
+								$elm$html$Html$text('Animation Speed')
 							])),
 						A2(
 						$elm$html$Html$input,
@@ -7705,11 +8742,11 @@ var $author$project$Maze$view = function (model) {
 							[
 								A2($elm$html$Html$Attributes$style, 'width', '100%'),
 								$elm$html$Html$Attributes$type_('range'),
-								$elm$html$Html$Attributes$min('1'),
-								$elm$html$Html$Attributes$max('300'),
+								$elm$html$Html$Attributes$min('0'),
+								$elm$html$Html$Attributes$max('200'),
 								$elm$html$Html$Attributes$value(
 								$elm$core$String$fromInt(
-									$elm$core$Basics$round(model.animationDelay))),
+									200 - $elm$core$Basics$round(model.animationDelay))),
 								$elm$html$Html$Events$onInput(
 								function (x) {
 									return $author$project$Maze$AnimationDelay(
@@ -7717,7 +8754,7 @@ var $author$project$Maze$view = function (model) {
 											var _v0 = $elm$core$String$toFloat(x);
 											if (_v0.$ === 'Just') {
 												var f = _v0.a;
-												return f;
+												return 200 - f;
 											} else {
 												return model.animationDelay;
 											}
@@ -7758,6 +8795,18 @@ var $author$project$Maze$view = function (model) {
 								})
 							]),
 						_List_Nil),
+						A2(
+						$elm$html$Html$div,
+						_List_fromArray(
+							[$aforemny$material_components_web_elm$Material$Typography$subtitle2]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Color')
+							])),
+						A2(
+						$elm$html$Html$map,
+						$author$project$Maze$ColorPickerMsg,
+						A2($simonh1000$elm_colorpicker$ColorPicker$view, model.color, model.colorPicker)),
 						A2(
 						$elm$html$Html$h4,
 						_List_fromArray(
@@ -7832,7 +8881,45 @@ var $author$project$Maze$view = function (model) {
 								})
 							]),
 						_List_Nil)
-					]))
+					])),
+				A3(
+				$joakin$elm_canvas$Canvas$toHtml,
+				_Utils_Tuple2(model.canvasSize, model.canvasSize),
+				_List_fromArray(
+					[
+						A2($elm$html$Html$Attributes$style, 'float', 'left')
+					]),
+				A2(
+					$elm$core$List$cons,
+					A3(
+						$joakin$elm_canvas$Canvas$clear,
+						_Utils_Tuple2(0, 0),
+						model.canvasSize,
+						model.canvasSize),
+					_Utils_ap(
+						A3(
+							$elm$core$Dict$foldl,
+							$author$project$Maze$ground(model),
+							_List_Nil,
+							model.distances),
+						A2(
+							$elm$core$List$concatMap,
+							function (j) {
+								return A2(
+									$elm$core$List$map,
+									$elm$core$Basics$apR(j),
+									A2(
+										$elm$core$List$map,
+										$author$project$Maze$cell(model),
+										A2(
+											$elm$core$List$map,
+											$elm$core$Basics$toFloat,
+											A2($elm$core$List$range, 0, model.width))));
+							},
+							A2(
+								$elm$core$List$map,
+								$elm$core$Basics$toFloat,
+								A2($elm$core$List$range, 0, model.height))))))
 			]));
 	return res;
 };
