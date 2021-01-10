@@ -1,1 +1,3 @@
-./elm-stuff
+./elm-stuff/*
+.DS_Store
+src/.DS_Store

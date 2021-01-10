@@ -14,6 +14,8 @@
             "elm/html": "1.0.0",
             "elm/random": "1.0.0",
             "elm/time": "1.0.0",
+            "elm-community/array-extra": "2.2.0",
+            "elm-community/list-extra": "8.2.4",
             "joakin/elm-canvas": "4.2.1",
             "simonh1000/elm-colorpicker": "2.0.2"
         },

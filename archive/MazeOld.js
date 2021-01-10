@@ -6313,424 +6313,76 @@ var $author$project$Maze$distances = F2(
 			}
 		}
 	});
-var $elm$core$List$filter = F2(
-	function (isGood, list) {
-		return A3(
-			$elm$core$List$foldr,
-			F2(
-				function (x, xs) {
-					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
-				}),
-			_List_Nil,
-			list);
-	});
-var $elm$core$Debug$log = _Debug_log;
-var $elm$core$Basics$neq = _Utils_notEqual;
-var $author$project$Maze$hunt = F3(
-	function (model, grid, current) {
-		hunt:
-		while (true) {
-			if (grid.b) {
-				var cell = grid.a;
-				var rest = grid.b;
-				var visited_neighbors = A2(
-					$elm$core$List$filter,
-					function (c) {
-						return !_Utils_eq(
-							A2($author$project$Maze$links, model.neighborhood, c),
-							_List_Nil);
-					},
-					A2($author$project$Maze$neighbors, model, cell));
-				var ns = $elm$core$Array$fromList(visited_neighbors);
-				var isCandidate = _Utils_eq(
-					A2($author$project$Maze$links, model.neighborhood, cell),
-					_List_Nil) && (!_Utils_eq(visited_neighbors, _List_Nil));
-				var lg = A2(
-					$elm$core$Debug$log,
-					'hunt(cell, visited_neighbors, isCandidate)',
-					_Utils_Tuple3(cell, visited_neighbors, isCandidate));
-				var _v1 = A2(
-					$elm$random$Random$step,
-					A2(
-						$elm$random$Random$int,
-						0,
-						$elm$core$Array$length(ns) - 1),
-					model.seed);
-				var cellIdx = _v1.a;
-				var seedN = _v1.b;
-				var n = function () {
-					var _v2 = A2($elm$core$Array$get, cellIdx, ns);
-					if (_v2.$ === 'Just') {
-						var a = _v2.a;
-						return a;
-					} else {
-						return _Utils_Tuple2(-2, -2);
-					}
-				}();
-				var modelN = _Utils_update(
-					model,
-					{seed: seedN});
-				if (isCandidate) {
-					return _Utils_Tuple2(
-						_Utils_update(
-							modelN,
-							{
-								linkQueue: A2(
-									$elm$core$List$cons,
-									_Utils_Tuple2(cell, n),
-									modelN.linkQueue)
-							}),
-						$elm$core$Maybe$Just(cell));
-				} else {
-					var $temp$model = modelN,
-						$temp$grid = rest,
-						$temp$current = current;
-					model = $temp$model;
-					grid = $temp$grid;
-					current = $temp$current;
-					continue hunt;
-				}
-			} else {
-				return _Utils_Tuple2(model, current);
-			}
-		}
-	});
-var $author$project$Maze$huntAndKillH = F3(
-	function (model, grid, current) {
-		if (!_Utils_eq(current, $elm$core$Maybe$Nothing)) {
-			var cell = function () {
-				if (current.$ === 'Just') {
-					var a = current.a;
-					return a;
-				} else {
-					return _Utils_Tuple2(-2, -2);
-				}
-			}();
-			var unvisited_neighbors = A2(
-				$elm$core$List$filter,
-				function (c) {
-					return _Utils_eq(
-						A2($author$project$Maze$links, model.neighborhood, c),
-						_List_Nil);
-				},
-				A2($author$project$Maze$neighbors, model, cell));
-			var _v0 = function () {
-				if (!_Utils_eq(unvisited_neighbors, _List_Nil)) {
-					var ns = $elm$core$Array$fromList(unvisited_neighbors);
-					var _v1 = A2(
-						$elm$random$Random$step,
-						A2(
-							$elm$random$Random$int,
-							0,
-							$elm$core$Array$length(ns) - 1),
-						model.seed);
-					var cellIdx = _v1.a;
-					var seedN = _v1.b;
-					var n = function () {
-						var _v2 = A2($elm$core$Array$get, cellIdx, ns);
-						if (_v2.$ === 'Just') {
-							var a = _v2.a;
-							return a;
-						} else {
-							return _Utils_Tuple2(-2, -2);
-						}
-					}();
-					var modelNN = _Utils_update(
-						model,
-						{
-							linkQueue: A2(
-								$elm$core$List$cons,
-								_Utils_Tuple2(cell, n),
-								model.linkQueue),
-							seed: seedN
-						});
-					return _Utils_Tuple2(
-						modelNN,
-						$elm$core$Maybe$Just(n));
-				} else {
-					return A3($author$project$Maze$hunt, model, grid, $elm$core$Maybe$Nothing);
-				}
-			}();
-			var modelN = _v0.a;
-			var currentN = _v0.b;
-			var lg1 = A2($elm$core$Debug$log, 'currentN', currentN);
-			return model;
-		} else {
-			return model;
-		}
-	});
-var $author$project$Maze$huntAndKill = function (model) {
-	var width = model.width;
-	var height = model.height;
-	var gridL = A2(
-		$elm$core$List$concatMap,
-		function (j) {
-			return A2(
-				$elm$core$List$map,
-				$elm$core$Basics$apR(j),
-				A2(
-					$elm$core$List$map,
-					F2(
-						function (i, k) {
-							return _Utils_Tuple2(i, k);
-						}),
-					A2(
-						$elm$core$List$map,
-						$elm$core$Basics$toFloat,
-						A2($elm$core$List$range, 0, width))));
-		},
-		A2(
-			$elm$core$List$map,
-			$elm$core$Basics$toFloat,
-			A2($elm$core$List$range, 0, height)));
-	var grid = $elm$core$Array$fromList(gridL);
-	var _v0 = A2(
-		$elm$random$Random$step,
-		A2(
-			$elm$random$Random$int,
-			0,
-			$elm$core$Array$length(grid) - 1),
-		model.seed);
-	var cellIdx = _v0.a;
-	var seedN = _v0.b;
-	var current = A2($elm$core$Array$get, cellIdx, grid);
-	var modelN = _Utils_update(
-		model,
-		{seed: seedN});
-	return _Utils_Tuple2(
-		A3($author$project$Maze$huntAndKillH, modelN, gridL, current),
-		_List_Nil);
-};
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
-var $elm$core$Elm$JsArray$appendN = _JsArray_appendN;
-var $elm$core$Elm$JsArray$slice = _JsArray_slice;
-var $elm$core$Array$appendHelpBuilder = F2(
-	function (tail, builder) {
-		var tailLen = $elm$core$Elm$JsArray$length(tail);
-		var notAppended = ($elm$core$Array$branchFactor - $elm$core$Elm$JsArray$length(builder.tail)) - tailLen;
-		var appended = A3($elm$core$Elm$JsArray$appendN, $elm$core$Array$branchFactor, builder.tail, tail);
-		return (notAppended < 0) ? {
-			nodeList: A2(
-				$elm$core$List$cons,
-				$elm$core$Array$Leaf(appended),
-				builder.nodeList),
-			nodeListSize: builder.nodeListSize + 1,
-			tail: A3($elm$core$Elm$JsArray$slice, notAppended, tailLen, tail)
-		} : ((!notAppended) ? {
-			nodeList: A2(
-				$elm$core$List$cons,
-				$elm$core$Array$Leaf(appended),
-				builder.nodeList),
-			nodeListSize: builder.nodeListSize + 1,
-			tail: $elm$core$Elm$JsArray$empty
-		} : {nodeList: builder.nodeList, nodeListSize: builder.nodeListSize, tail: appended});
-	});
-var $elm$core$List$drop = F2(
-	function (n, list) {
-		drop:
-		while (true) {
-			if (n <= 0) {
-				return list;
-			} else {
-				if (!list.b) {
-					return list;
+var $author$project$Maze$shortestPath = F2(
+	function (model, end) {
+		var linked = A2($author$project$Maze$links, model.neighborhood, end);
+		var ds = A2(
+			$elm$core$List$map,
+			function (p) {
+				var _v3 = A2($elm$core$Dict$get, p, model.distances);
+				if (_v3.$ === 'Just') {
+					var d = _v3.a;
+					return _Utils_Tuple2(d, p);
 				} else {
-					var x = list.a;
-					var xs = list.b;
-					var $temp$n = n - 1,
-						$temp$list = xs;
-					n = $temp$n;
-					list = $temp$list;
-					continue drop;
+					return _Utils_Tuple2(1 / 0, p);
 				}
-			}
-		}
+			},
+			linked);
+		var _v0 = A3(
+			$elm$core$List$foldl,
+			F2(
+				function (_v1, _v2) {
+					var d1 = _v1.a;
+					var p1 = _v1.b;
+					var d2 = _v2.a;
+					var p2 = _v2.b;
+					return ((_Utils_cmp(d1, d2) < 0) || _Utils_eq(
+						p1,
+						_Utils_Tuple2(0, 0))) ? _Utils_Tuple2(d1, p1) : _Utils_Tuple2(d2, p2);
+				}),
+			_Utils_Tuple2(
+				1 / 0,
+				_Utils_Tuple2(0, 0)),
+			ds);
+		var dist = _v0.a;
+		var next = _v0.b;
+		var path = _Utils_eq(
+			end,
+			_Utils_Tuple2(0, 0)) ? _List_fromArray(
+			[
+				_Utils_Tuple2(0, 0)
+			]) : A2(
+			$elm$core$List$cons,
+			end,
+			A2($author$project$Maze$shortestPath, model, next));
+		return path;
 	});
-var $elm$core$Array$sliceLeft = F2(
-	function (from, array) {
-		var len = array.a;
-		var tree = array.c;
-		var tail = array.d;
-		if (!from) {
-			return array;
-		} else {
-			if (_Utils_cmp(
-				from,
-				$elm$core$Array$tailIndex(len)) > -1) {
-				return A4(
-					$elm$core$Array$Array_elm_builtin,
-					len - from,
-					$elm$core$Array$shiftStep,
-					$elm$core$Elm$JsArray$empty,
-					A3(
-						$elm$core$Elm$JsArray$slice,
-						from - $elm$core$Array$tailIndex(len),
-						$elm$core$Elm$JsArray$length(tail),
-						tail));
-			} else {
-				var skipNodes = (from / $elm$core$Array$branchFactor) | 0;
-				var helper = F2(
-					function (node, acc) {
-						if (node.$ === 'SubTree') {
-							var subTree = node.a;
-							return A3($elm$core$Elm$JsArray$foldr, helper, acc, subTree);
-						} else {
-							var leaf = node.a;
-							return A2($elm$core$List$cons, leaf, acc);
-						}
-					});
-				var leafNodes = A3(
-					$elm$core$Elm$JsArray$foldr,
-					helper,
-					_List_fromArray(
-						[tail]),
-					tree);
-				var nodesToInsert = A2($elm$core$List$drop, skipNodes, leafNodes);
-				if (!nodesToInsert.b) {
-					return $elm$core$Array$empty;
-				} else {
-					var head = nodesToInsert.a;
-					var rest = nodesToInsert.b;
-					var firstSlice = from - (skipNodes * $elm$core$Array$branchFactor);
-					var initialBuilder = {
-						nodeList: _List_Nil,
-						nodeListSize: 0,
-						tail: A3(
-							$elm$core$Elm$JsArray$slice,
-							firstSlice,
-							$elm$core$Elm$JsArray$length(head),
-							head)
-					};
-					return A2(
-						$elm$core$Array$builderToArray,
-						true,
-						A3($elm$core$List$foldl, $elm$core$Array$appendHelpBuilder, initialBuilder, rest));
-				}
-			}
-		}
+var $author$project$Maze$atEasternBoundary = F2(
+	function (model, _v0) {
+		var x = _v0.a;
+		var y = _v0.b;
+		var width = model.width;
+		var _v1 = $author$project$Maze$eastNeighbor(
+			_Utils_Tuple2(x, y));
+		var i = _v1.a;
+		var j = _v1.b;
+		return _Utils_cmp(i, width) > 0;
 	});
-var $elm$core$Array$fetchNewTail = F4(
-	function (shift, end, treeEnd, tree) {
-		fetchNewTail:
-		while (true) {
-			var pos = $elm$core$Array$bitMask & (treeEnd >>> shift);
-			var _v0 = A2($elm$core$Elm$JsArray$unsafeGet, pos, tree);
-			if (_v0.$ === 'SubTree') {
-				var sub = _v0.a;
-				var $temp$shift = shift - $elm$core$Array$shiftStep,
-					$temp$end = end,
-					$temp$treeEnd = treeEnd,
-					$temp$tree = sub;
-				shift = $temp$shift;
-				end = $temp$end;
-				treeEnd = $temp$treeEnd;
-				tree = $temp$tree;
-				continue fetchNewTail;
-			} else {
-				var values = _v0.a;
-				return A3($elm$core$Elm$JsArray$slice, 0, $elm$core$Array$bitMask & end, values);
-			}
-		}
+var $author$project$Maze$atNorthernBoundary = F2(
+	function (model, _v0) {
+		var x = _v0.a;
+		var y = _v0.b;
+		var _v1 = $author$project$Maze$northNeighbor(
+			_Utils_Tuple2(x, y));
+		var i = _v1.a;
+		var j = _v1.b;
+		return j < 0;
 	});
-var $elm$core$Array$hoistTree = F3(
-	function (oldShift, newShift, tree) {
-		hoistTree:
-		while (true) {
-			if ((_Utils_cmp(oldShift, newShift) < 1) || (!$elm$core$Elm$JsArray$length(tree))) {
-				return tree;
-			} else {
-				var _v0 = A2($elm$core$Elm$JsArray$unsafeGet, 0, tree);
-				if (_v0.$ === 'SubTree') {
-					var sub = _v0.a;
-					var $temp$oldShift = oldShift - $elm$core$Array$shiftStep,
-						$temp$newShift = newShift,
-						$temp$tree = sub;
-					oldShift = $temp$oldShift;
-					newShift = $temp$newShift;
-					tree = $temp$tree;
-					continue hoistTree;
-				} else {
-					return tree;
-				}
-			}
-		}
-	});
-var $elm$core$Elm$JsArray$unsafeSet = _JsArray_unsafeSet;
-var $elm$core$Array$sliceTree = F3(
-	function (shift, endIdx, tree) {
-		var lastPos = $elm$core$Array$bitMask & (endIdx >>> shift);
-		var _v0 = A2($elm$core$Elm$JsArray$unsafeGet, lastPos, tree);
-		if (_v0.$ === 'SubTree') {
-			var sub = _v0.a;
-			var newSub = A3($elm$core$Array$sliceTree, shift - $elm$core$Array$shiftStep, endIdx, sub);
-			return (!$elm$core$Elm$JsArray$length(newSub)) ? A3($elm$core$Elm$JsArray$slice, 0, lastPos, tree) : A3(
-				$elm$core$Elm$JsArray$unsafeSet,
-				lastPos,
-				$elm$core$Array$SubTree(newSub),
-				A3($elm$core$Elm$JsArray$slice, 0, lastPos + 1, tree));
-		} else {
-			return A3($elm$core$Elm$JsArray$slice, 0, lastPos, tree);
-		}
-	});
-var $elm$core$Array$sliceRight = F2(
-	function (end, array) {
-		var len = array.a;
-		var startShift = array.b;
-		var tree = array.c;
-		var tail = array.d;
-		if (_Utils_eq(end, len)) {
-			return array;
-		} else {
-			if (_Utils_cmp(
-				end,
-				$elm$core$Array$tailIndex(len)) > -1) {
-				return A4(
-					$elm$core$Array$Array_elm_builtin,
-					end,
-					startShift,
-					tree,
-					A3($elm$core$Elm$JsArray$slice, 0, $elm$core$Array$bitMask & end, tail));
-			} else {
-				var endIdx = $elm$core$Array$tailIndex(end);
-				var depth = $elm$core$Basics$floor(
-					A2(
-						$elm$core$Basics$logBase,
-						$elm$core$Array$branchFactor,
-						A2($elm$core$Basics$max, 1, endIdx - 1)));
-				var newShift = A2($elm$core$Basics$max, 5, depth * $elm$core$Array$shiftStep);
-				return A4(
-					$elm$core$Array$Array_elm_builtin,
-					end,
-					newShift,
-					A3(
-						$elm$core$Array$hoistTree,
-						startShift,
-						newShift,
-						A3($elm$core$Array$sliceTree, startShift, endIdx, tree)),
-					A4($elm$core$Array$fetchNewTail, startShift, end, endIdx, tree));
-			}
-		}
-	});
-var $elm$core$Array$translateIndex = F2(
-	function (index, _v0) {
-		var len = _v0.a;
-		var posIndex = (index < 0) ? (len + index) : index;
-		return (posIndex < 0) ? 0 : ((_Utils_cmp(posIndex, len) > 0) ? len : posIndex);
-	});
-var $elm$core$Array$slice = F3(
-	function (from, to, array) {
-		var correctTo = A2($elm$core$Array$translateIndex, to, array);
-		var correctFrom = A2($elm$core$Array$translateIndex, from, array);
-		return (_Utils_cmp(correctFrom, correctTo) > 0) ? $elm$core$Array$empty : A2(
-			$elm$core$Array$sliceLeft,
-			correctFrom,
-			A2($elm$core$Array$sliceRight, correctTo, array));
-	});
-var $elm_community$array_extra$Array$Extra$pop = function (arr) {
-	return A3($elm$core$Array$slice, 0, -1, arr);
-};
+var $elm$core$Basics$not = _Basics_not;
 var $elm$core$Elm$JsArray$push = _JsArray_push;
 var $elm$core$Elm$JsArray$singleton = _JsArray_singleton;
+var $elm$core$Elm$JsArray$unsafeSet = _JsArray_unsafeSet;
 var $elm$core$Array$insertTailInTree = F4(
 	function (shift, index, tail, tree) {
 		var pos = $elm$core$Array$bitMask & (index >>> shift);
@@ -6807,201 +6459,6 @@ var $elm$core$Array$push = F2(
 			A2($elm$core$Elm$JsArray$push, a, tail),
 			array);
 	});
-var $author$project$Maze$recursiveBacktrackerH = F2(
-	function (model, stack) {
-		recursiveBacktrackerH:
-		while (true) {
-			if (!_Utils_eq(stack, $elm$core$Array$empty)) {
-				var cell = function () {
-					var _v3 = A2(
-						$elm$core$Array$get,
-						0,
-						A3($elm$core$Array$slice, 0, -1, stack));
-					if (_v3.$ === 'Just') {
-						var a = _v3.a;
-						return a;
-					} else {
-						return _Utils_Tuple2(-2, -2);
-					}
-				}();
-				var unvisited_ns = $elm$core$Array$fromList(
-					A2(
-						$elm$core$List$filter,
-						function (c) {
-							return _Utils_eq(
-								A2($author$project$Maze$links, model.neighborhood, c),
-								_List_Nil);
-						},
-						A2($author$project$Maze$neighbors, model, cell)));
-				var _v0 = function () {
-					if (_Utils_eq(unvisited_ns, $elm$core$Array$empty)) {
-						return _Utils_Tuple2(
-							model,
-							$elm_community$array_extra$Array$Extra$pop(stack));
-					} else {
-						var ns = unvisited_ns;
-						var _v1 = A2(
-							$elm$random$Random$step,
-							A2(
-								$elm$random$Random$int,
-								0,
-								$elm$core$Array$length(ns) - 1),
-							model.seed);
-						var cellIdx = _v1.a;
-						var seedN = _v1.b;
-						var n = function () {
-							var _v2 = A2($elm$core$Array$get, cellIdx, unvisited_ns);
-							if (_v2.$ === 'Just') {
-								var a = _v2.a;
-								return a;
-							} else {
-								return _Utils_Tuple2(-2, -2);
-							}
-						}();
-						var stackNN = A2($elm$core$Array$push, n, stack);
-						var modelNN = _Utils_update(
-							model,
-							{
-								linkQueue: A2(
-									$elm$core$List$cons,
-									_Utils_Tuple2(cell, n),
-									model.linkQueue),
-								seed: seedN
-							});
-						return _Utils_Tuple2(modelNN, stackNN);
-					}
-				}();
-				var modelN = _v0.a;
-				var stackN = _v0.b;
-				var $temp$model = modelN,
-					$temp$stack = stackN;
-				model = $temp$model;
-				stack = $temp$stack;
-				continue recursiveBacktrackerH;
-			} else {
-				return model;
-			}
-		}
-	});
-var $author$project$Maze$recursiveBacktracker = function (model) {
-	var width = model.width;
-	var height = model.height;
-	var grid = $elm$core$Array$fromList(
-		A2(
-			$elm$core$List$concatMap,
-			function (j) {
-				return A2(
-					$elm$core$List$map,
-					$elm$core$Basics$apR(j),
-					A2(
-						$elm$core$List$map,
-						F2(
-							function (i, k) {
-								return _Utils_Tuple2(i, k);
-							}),
-						A2(
-							$elm$core$List$map,
-							$elm$core$Basics$toFloat,
-							A2($elm$core$List$range, 0, width))));
-			},
-			A2(
-				$elm$core$List$map,
-				$elm$core$Basics$toFloat,
-				A2($elm$core$List$range, 0, height))));
-	var _v0 = A2(
-		$elm$random$Random$step,
-		A2(
-			$elm$random$Random$int,
-			0,
-			$elm$core$Array$length(grid) - 1),
-		model.seed);
-	var cellIdx = _v0.a;
-	var seedN = _v0.b;
-	var start = function () {
-		var _v1 = A2($elm$core$Array$get, cellIdx, grid);
-		if (_v1.$ === 'Just') {
-			var a = _v1.a;
-			return a;
-		} else {
-			return _Utils_Tuple2(-2, -2);
-		}
-	}();
-	var stack = $elm$core$Array$fromList(
-		_List_fromArray(
-			[start]));
-	var modelN = _Utils_update(
-		model,
-		{seed: seedN});
-	return _Utils_Tuple2(
-		A2($author$project$Maze$recursiveBacktrackerH, modelN, stack),
-		_List_Nil);
-};
-var $author$project$Maze$shortestPath = F2(
-	function (model, end) {
-		var linked = A2($author$project$Maze$links, model.neighborhood, end);
-		var ds = A2(
-			$elm$core$List$map,
-			function (p) {
-				var _v3 = A2($elm$core$Dict$get, p, model.distances);
-				if (_v3.$ === 'Just') {
-					var d = _v3.a;
-					return _Utils_Tuple2(d, p);
-				} else {
-					return _Utils_Tuple2(1 / 0, p);
-				}
-			},
-			linked);
-		var _v0 = A3(
-			$elm$core$List$foldl,
-			F2(
-				function (_v1, _v2) {
-					var d1 = _v1.a;
-					var p1 = _v1.b;
-					var d2 = _v2.a;
-					var p2 = _v2.b;
-					return ((_Utils_cmp(d1, d2) < 0) || _Utils_eq(
-						p1,
-						_Utils_Tuple2(0, 0))) ? _Utils_Tuple2(d1, p1) : _Utils_Tuple2(d2, p2);
-				}),
-			_Utils_Tuple2(
-				1 / 0,
-				_Utils_Tuple2(0, 0)),
-			ds);
-		var dist = _v0.a;
-		var next = _v0.b;
-		var path = _Utils_eq(
-			end,
-			_Utils_Tuple2(0, 0)) ? _List_fromArray(
-			[
-				_Utils_Tuple2(0, 0)
-			]) : A2(
-			$elm$core$List$cons,
-			end,
-			A2($author$project$Maze$shortestPath, model, next));
-		return path;
-	});
-var $author$project$Maze$atEasternBoundary = F2(
-	function (model, _v0) {
-		var x = _v0.a;
-		var y = _v0.b;
-		var width = model.width;
-		var _v1 = $author$project$Maze$eastNeighbor(
-			_Utils_Tuple2(x, y));
-		var i = _v1.a;
-		var j = _v1.b;
-		return _Utils_cmp(i, width) > 0;
-	});
-var $author$project$Maze$atNorthernBoundary = F2(
-	function (model, _v0) {
-		var x = _v0.a;
-		var y = _v0.b;
-		var _v1 = $author$project$Maze$northNeighbor(
-			_Utils_Tuple2(x, y));
-		var i = _v1.a;
-		var j = _v1.b;
-		return j < 0;
-	});
-var $elm$core$Basics$not = _Basics_not;
 var $author$project$Maze$sidewinderH = F4(
 	function (model, run, i, j) {
 		sidewinderH:
@@ -7361,6 +6818,230 @@ var $elm$core$Array$foldl = F3(
 			A3($elm$core$Elm$JsArray$foldl, helper, baseCase, tree),
 			tail);
 	});
+var $elm$core$Elm$JsArray$appendN = _JsArray_appendN;
+var $elm$core$Elm$JsArray$slice = _JsArray_slice;
+var $elm$core$Array$appendHelpBuilder = F2(
+	function (tail, builder) {
+		var tailLen = $elm$core$Elm$JsArray$length(tail);
+		var notAppended = ($elm$core$Array$branchFactor - $elm$core$Elm$JsArray$length(builder.tail)) - tailLen;
+		var appended = A3($elm$core$Elm$JsArray$appendN, $elm$core$Array$branchFactor, builder.tail, tail);
+		return (notAppended < 0) ? {
+			nodeList: A2(
+				$elm$core$List$cons,
+				$elm$core$Array$Leaf(appended),
+				builder.nodeList),
+			nodeListSize: builder.nodeListSize + 1,
+			tail: A3($elm$core$Elm$JsArray$slice, notAppended, tailLen, tail)
+		} : ((!notAppended) ? {
+			nodeList: A2(
+				$elm$core$List$cons,
+				$elm$core$Array$Leaf(appended),
+				builder.nodeList),
+			nodeListSize: builder.nodeListSize + 1,
+			tail: $elm$core$Elm$JsArray$empty
+		} : {nodeList: builder.nodeList, nodeListSize: builder.nodeListSize, tail: appended});
+	});
+var $elm$core$List$drop = F2(
+	function (n, list) {
+		drop:
+		while (true) {
+			if (n <= 0) {
+				return list;
+			} else {
+				if (!list.b) {
+					return list;
+				} else {
+					var x = list.a;
+					var xs = list.b;
+					var $temp$n = n - 1,
+						$temp$list = xs;
+					n = $temp$n;
+					list = $temp$list;
+					continue drop;
+				}
+			}
+		}
+	});
+var $elm$core$Array$sliceLeft = F2(
+	function (from, array) {
+		var len = array.a;
+		var tree = array.c;
+		var tail = array.d;
+		if (!from) {
+			return array;
+		} else {
+			if (_Utils_cmp(
+				from,
+				$elm$core$Array$tailIndex(len)) > -1) {
+				return A4(
+					$elm$core$Array$Array_elm_builtin,
+					len - from,
+					$elm$core$Array$shiftStep,
+					$elm$core$Elm$JsArray$empty,
+					A3(
+						$elm$core$Elm$JsArray$slice,
+						from - $elm$core$Array$tailIndex(len),
+						$elm$core$Elm$JsArray$length(tail),
+						tail));
+			} else {
+				var skipNodes = (from / $elm$core$Array$branchFactor) | 0;
+				var helper = F2(
+					function (node, acc) {
+						if (node.$ === 'SubTree') {
+							var subTree = node.a;
+							return A3($elm$core$Elm$JsArray$foldr, helper, acc, subTree);
+						} else {
+							var leaf = node.a;
+							return A2($elm$core$List$cons, leaf, acc);
+						}
+					});
+				var leafNodes = A3(
+					$elm$core$Elm$JsArray$foldr,
+					helper,
+					_List_fromArray(
+						[tail]),
+					tree);
+				var nodesToInsert = A2($elm$core$List$drop, skipNodes, leafNodes);
+				if (!nodesToInsert.b) {
+					return $elm$core$Array$empty;
+				} else {
+					var head = nodesToInsert.a;
+					var rest = nodesToInsert.b;
+					var firstSlice = from - (skipNodes * $elm$core$Array$branchFactor);
+					var initialBuilder = {
+						nodeList: _List_Nil,
+						nodeListSize: 0,
+						tail: A3(
+							$elm$core$Elm$JsArray$slice,
+							firstSlice,
+							$elm$core$Elm$JsArray$length(head),
+							head)
+					};
+					return A2(
+						$elm$core$Array$builderToArray,
+						true,
+						A3($elm$core$List$foldl, $elm$core$Array$appendHelpBuilder, initialBuilder, rest));
+				}
+			}
+		}
+	});
+var $elm$core$Array$fetchNewTail = F4(
+	function (shift, end, treeEnd, tree) {
+		fetchNewTail:
+		while (true) {
+			var pos = $elm$core$Array$bitMask & (treeEnd >>> shift);
+			var _v0 = A2($elm$core$Elm$JsArray$unsafeGet, pos, tree);
+			if (_v0.$ === 'SubTree') {
+				var sub = _v0.a;
+				var $temp$shift = shift - $elm$core$Array$shiftStep,
+					$temp$end = end,
+					$temp$treeEnd = treeEnd,
+					$temp$tree = sub;
+				shift = $temp$shift;
+				end = $temp$end;
+				treeEnd = $temp$treeEnd;
+				tree = $temp$tree;
+				continue fetchNewTail;
+			} else {
+				var values = _v0.a;
+				return A3($elm$core$Elm$JsArray$slice, 0, $elm$core$Array$bitMask & end, values);
+			}
+		}
+	});
+var $elm$core$Array$hoistTree = F3(
+	function (oldShift, newShift, tree) {
+		hoistTree:
+		while (true) {
+			if ((_Utils_cmp(oldShift, newShift) < 1) || (!$elm$core$Elm$JsArray$length(tree))) {
+				return tree;
+			} else {
+				var _v0 = A2($elm$core$Elm$JsArray$unsafeGet, 0, tree);
+				if (_v0.$ === 'SubTree') {
+					var sub = _v0.a;
+					var $temp$oldShift = oldShift - $elm$core$Array$shiftStep,
+						$temp$newShift = newShift,
+						$temp$tree = sub;
+					oldShift = $temp$oldShift;
+					newShift = $temp$newShift;
+					tree = $temp$tree;
+					continue hoistTree;
+				} else {
+					return tree;
+				}
+			}
+		}
+	});
+var $elm$core$Array$sliceTree = F3(
+	function (shift, endIdx, tree) {
+		var lastPos = $elm$core$Array$bitMask & (endIdx >>> shift);
+		var _v0 = A2($elm$core$Elm$JsArray$unsafeGet, lastPos, tree);
+		if (_v0.$ === 'SubTree') {
+			var sub = _v0.a;
+			var newSub = A3($elm$core$Array$sliceTree, shift - $elm$core$Array$shiftStep, endIdx, sub);
+			return (!$elm$core$Elm$JsArray$length(newSub)) ? A3($elm$core$Elm$JsArray$slice, 0, lastPos, tree) : A3(
+				$elm$core$Elm$JsArray$unsafeSet,
+				lastPos,
+				$elm$core$Array$SubTree(newSub),
+				A3($elm$core$Elm$JsArray$slice, 0, lastPos + 1, tree));
+		} else {
+			return A3($elm$core$Elm$JsArray$slice, 0, lastPos, tree);
+		}
+	});
+var $elm$core$Array$sliceRight = F2(
+	function (end, array) {
+		var len = array.a;
+		var startShift = array.b;
+		var tree = array.c;
+		var tail = array.d;
+		if (_Utils_eq(end, len)) {
+			return array;
+		} else {
+			if (_Utils_cmp(
+				end,
+				$elm$core$Array$tailIndex(len)) > -1) {
+				return A4(
+					$elm$core$Array$Array_elm_builtin,
+					end,
+					startShift,
+					tree,
+					A3($elm$core$Elm$JsArray$slice, 0, $elm$core$Array$bitMask & end, tail));
+			} else {
+				var endIdx = $elm$core$Array$tailIndex(end);
+				var depth = $elm$core$Basics$floor(
+					A2(
+						$elm$core$Basics$logBase,
+						$elm$core$Array$branchFactor,
+						A2($elm$core$Basics$max, 1, endIdx - 1)));
+				var newShift = A2($elm$core$Basics$max, 5, depth * $elm$core$Array$shiftStep);
+				return A4(
+					$elm$core$Array$Array_elm_builtin,
+					end,
+					newShift,
+					A3(
+						$elm$core$Array$hoistTree,
+						startShift,
+						newShift,
+						A3($elm$core$Array$sliceTree, startShift, endIdx, tree)),
+					A4($elm$core$Array$fetchNewTail, startShift, end, endIdx, tree));
+			}
+		}
+	});
+var $elm$core$Array$translateIndex = F2(
+	function (index, _v0) {
+		var len = _v0.a;
+		var posIndex = (index < 0) ? (len + index) : index;
+		return (posIndex < 0) ? 0 : ((_Utils_cmp(posIndex, len) > 0) ? len : posIndex);
+	});
+var $elm$core$Array$slice = F3(
+	function (from, to, array) {
+		var correctTo = A2($elm$core$Array$translateIndex, to, array);
+		var correctFrom = A2($elm$core$Array$translateIndex, from, array);
+		return (_Utils_cmp(correctFrom, correctTo) > 0) ? $elm$core$Array$empty : A2(
+			$elm$core$Array$sliceLeft,
+			correctFrom,
+			A2($elm$core$Array$sliceRight, correctTo, array));
+	});
+var $elm$core$Debug$log = _Debug_log;
 var $elm$core$Maybe$map = F2(
 	function (f, maybe) {
 		if (maybe.$ === 'Just') {
@@ -7444,6 +7125,10 @@ var $author$project$Maze$wilsonsAddLinks = F2(
 				$elm$core$Array$length(path),
 				path));
 		var linkQ = A3($elm$core$Array$foldl, $elm$core$List$cons, model.linkQueue, ls);
+		var lg = A2(
+			$elm$core$Debug$log,
+			'(path, ls)',
+			_Utils_Tuple2(path, ls));
 		return _Utils_update(
 			model,
 			{linkQueue: linkQ});
@@ -7476,6 +7161,7 @@ var $elm_community$list_extra$List$Extra$elemIndex = function (x) {
 	return $elm_community$list_extra$List$Extra$findIndex(
 		$elm$core$Basics$eq(x));
 };
+var $elm$core$Basics$neq = _Utils_notEqual;
 var $author$project$Maze$wilsonsBuildPath = F4(
 	function (model, unvis, path, cell) {
 		wilsonsBuildPath:
@@ -7698,10 +7384,6 @@ var $author$project$Maze$update = F2(
 							return $author$project$Maze$sidewinder(modelN);
 						case 'Wilsons':
 							return $author$project$Maze$wilsons(modelN);
-						case 'HuntAndKill':
-							return $author$project$Maze$huntAndKill(modelN);
-						case 'RecursiveBacktracker':
-							return $author$project$Maze$recursiveBacktracker(modelN);
 						default:
 							return $author$project$Maze$binaryTree(modelN);
 					}
@@ -9972,7 +9654,7 @@ var $author$project$Maze$view = function (model) {
 								$elm$html$Html$option,
 								_List_fromArray(
 									[
-										$elm$html$Html$Attributes$value('RecursiveBacktracker')
+										$elm$html$Html$Attributes$value('RecursiveBacktracking')
 									]),
 								_List_fromArray(
 									[

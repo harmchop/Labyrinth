@@ -19,7 +19,10 @@
   <script src="./Maze.js"></script>
   <main></main>
   <script>
-    var app = Elm.Maze.init({ node: document.querySelector('main') })
+    var app = Elm.Maze.init({ 
+        node: document.querySelector('main'),
+        flags: {startTime: Date.now()}
+      })
     // you can use ports and stuff here
   </script>
 </body>
